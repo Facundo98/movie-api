@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Table (name = "characters")
@@ -35,5 +36,8 @@ public class Character implements Serializable{
     private Float weight;
 
     private String history;
+
+    @ManyToMany(targetEntity = MovieOrSerie.class)
+    private Set movieOrSerieSet;
 
 }

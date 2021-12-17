@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Table(name = "genres")
@@ -27,7 +28,6 @@ public class Genre implements Serializable {
 
     private String image;
 
-
-
-
+    @ManyToMany(targetEntity = MovieOrSerie.class)
+    private Set movieOrSerieSet;
 }
