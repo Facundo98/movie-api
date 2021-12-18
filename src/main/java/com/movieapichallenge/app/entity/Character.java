@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -26,18 +29,23 @@ public class Character implements Serializable{
     private String image;
 
 
-    @Column(length = 100,nullable = false)
+    @Column(nullable = false)
+    @Size(max = 100, message = "The name must contain a maximum of 30 characters")
     private String name;
 
-    @Column(nullable = false)
+    @Min(value = 1, message = "Must be equal or greater than 1")
+    @Max(value = 5,message = "Must be equal or less than 5")
     private Integer age;
 
-    @Column(nullable = false)
+    @Min(value = 1, message = "Must be equal or greater than 1")
+    @Max(value = 400,message = "Must be equal or less than 400")
     private Float weight;
 
+    @Column(nullable = false)
+    @Size(max = 300, message = "The history must contain a maximum of 300 characters")
     private String history;
 
     @ManyToMany(targetEntity = MovieOrSerie.class)
-    private Set movieOrSerieSet;
+    private Set<MovieOrSerie> movieOrSerieSet;
 
 }

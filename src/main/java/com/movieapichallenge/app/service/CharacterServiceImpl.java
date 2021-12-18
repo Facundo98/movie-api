@@ -5,6 +5,8 @@ import com.movieapichallenge.app.repository.CharacterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,5 +46,17 @@ public class CharacterServiceImpl implements CharacterService{
     @Transactional
     public void deleteById(Long id) {
         characterRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<Character> readById(Long characterId) {
+        Optional<Character> optionalCharacter = characterRepository.findById(characterId);
+
+        if(!optionalCharacter.isPresent()){
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(optionalCharacter.get());
     }
 }

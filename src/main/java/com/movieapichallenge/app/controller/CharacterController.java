@@ -5,10 +5,10 @@ import com.movieapichallenge.app.service.CharacterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/characters")
@@ -19,7 +19,13 @@ public class CharacterController {
 
     //Create a new character
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody Character character){
+    public ResponseEntity<Character> create(@Valid @RequestBody Character character){
         return ResponseEntity.status(HttpStatus.CREATED).body(characterService.save(character));
+    }
+
+    //Read a character
+    @GetMapping("/{id}")
+    public ResponseEntity<?> read(@PathVariable(value = "id")Long characterId){
+         return characterService.readById(characterId);
     }
 }
