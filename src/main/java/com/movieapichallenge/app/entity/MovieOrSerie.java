@@ -8,10 +8,11 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "movies_or_series")
+@Table(name = "movieOrSerie")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,8 +35,15 @@ public class MovieOrSerie implements Serializable {
 
     private Integer score;
 
-    @ManyToMany(targetEntity = Character.class)
-    private Set characterSet;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "movieOrSerie_genre",
+            joinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")),
+            inverseJoinColumns = @JoinColumn(name = "genre_id",foreignKey=@ForeignKey(name  = "fk_genreId")))
+    private List<Genre> genres;
+
+    @ManyToMany(mappedBy = "movieOrSerieList")
+    private List<Character> characters;
 
 
 }

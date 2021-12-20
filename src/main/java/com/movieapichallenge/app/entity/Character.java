@@ -10,7 +10,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Table (name = "characters")
@@ -26,6 +26,7 @@ public class Character implements Serializable{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100)
     private String image;
 
 
@@ -45,7 +46,11 @@ public class Character implements Serializable{
     @Size(max = 300, message = "The history must contain a maximum of 300 characters")
     private String history;
 
-    @ManyToMany(targetEntity = MovieOrSerie.class)
-    private Set<MovieOrSerie> movieOrSerieSet;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "movieOrSerie_characters",
+            joinColumns = @JoinColumn(name = "character_id",foreignKey=@ForeignKey(name = "fk_characterId")),
+            inverseJoinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")))
+    private List<MovieOrSerie> movieOrSerieList;
 
 }
