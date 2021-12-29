@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 public class FileController {
 
@@ -15,9 +17,9 @@ public class FileController {
 
     //Download the respective character image
     @GetMapping("/api/files/characterImage/{idCharacter}/{fileName}")
-    public ResponseEntity downloadCharacterImage(@PathVariable( value = "idCharacter") String idCharacter, @PathVariable(value = "fileName") String fileName){
+    public ResponseEntity downloadCharacterImage(@PathVariable( value = "idCharacter") Long idCharacter, @PathVariable(value = "fileName") String fileName, HttpServletRequest request){
 
-        return fileService.downloadFileByIdCharacter(idCharacter,fileName);
+        return fileService.downloadFileByIdCharacter(idCharacter,fileName,request);
     }
 
 }

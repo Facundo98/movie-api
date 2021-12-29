@@ -2,11 +2,23 @@ package com.movieapichallenge.app.util;
 
 import lombok.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 
 @Getter
 public class FileUtil {
 
-    private String characterImagePath = System.getProperty("user.dir") + "/src/main/resources/uploads/characterImage/";
-    private String movieOrSerieImagePath = System.getProperty("user.dir") + "/src/main/resources/uploads/movieOrSerieImage/";
-    private String genreImagePath = System.getProperty("user.dir") + "/src/main/resources/uploads/genreImage/";
+    private String characterImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/characterImage/";
+    private String movieOrSerieImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/movieOrSerieImage/";
+    private String genreImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/genreImage/";
+
+    private Path characterImagePath = Paths.get(characterImageStoragePath);
+    private Path movieOrSeriePath = Paths.get(movieOrSerieImageStoragePath);
+    private Path genrePath = Paths.get(genreImageStoragePath);
+
+    public Path getImagePath(Long characterId, String fileName){
+        return Paths.get(characterImageStoragePath + characterId + "/" + fileName);
+    }
+
 }

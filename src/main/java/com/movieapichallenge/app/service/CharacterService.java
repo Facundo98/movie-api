@@ -19,9 +19,11 @@ public interface CharacterService {
 
     public Character save(Character character);
 
-    public void deleteById(Long id);
+    ResponseEntity<?> deleteById(Long id);
 
     ResponseEntity<?> readById(Long characterId);
 
     ResponseEntity<?> saveNewCharacter(String character, MultipartFile multipartFile);
+
+    ResponseEntity<?> updateCharacter(String jsonData,MultipartFile multipartFile,Long characterId);
 }
