@@ -4,10 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.bytebuddy.build.Plugin;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
@@ -25,14 +31,21 @@ public class MovieOrSerie implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 100, nullable = false)
+    @Column(nullable = false)
+    @NotBlank(message = "The tittle cannot be blank")
+    @Size(max = 100, message = "The tittle must contain a maximum of 100 characters")
     private String tittle;
 
+    @Column(length = 100,nullable = false)
     private String image;
 
-    @Column(nullable = false)
-    private Date creationDate;
 
+    private String creationDate = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date());
+
+    @Min(value = 1, message = "Must be equal or greater than 1")
+    @NotNull(message = "The movie/serie score cannot be null")
+    @Max(value = 5,message = "Must be equal or less than 5")
+    @Column(nullable = false)
     private Integer score;
 
     @ManyToMany(cascade = CascadeType.ALL)
