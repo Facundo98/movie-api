@@ -30,7 +30,7 @@ public class Character implements Serializable{
 
     @Column(nullable = false)
     @NotBlank(message = "The character name cannot be blank")
-    @Size(max = 100, message = "The name must contain a maximum of 30 characters")
+    @Size(max = 100, message = "The name must contain a maximum of 100 characters")
     private String name;
 
     @Min(value = 1, message = "Must be equal or greater than 1")

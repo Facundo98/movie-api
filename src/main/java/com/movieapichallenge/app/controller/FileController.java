@@ -19,7 +19,13 @@ public class FileController {
     @GetMapping("/api/files/characterImage/{idCharacter}/{fileName}")
     public ResponseEntity downloadCharacterImage(@PathVariable( value = "idCharacter") Long idCharacter, @PathVariable(value = "fileName") String fileName, HttpServletRequest request){
 
-        return fileService.downloadFileByIdCharacter(idCharacter,fileName,request);
+        return fileService.downloadFile(idCharacter,fileName,request,"character");
+    }
+
+    //Download the respective genre image
+    @GetMapping("/api/files/genreImage/{idGenre}/{fileName}")
+    public ResponseEntity downloadGenreImage(@PathVariable(value = "idGenre")Long idGenre, @PathVariable(value = "fileName") String fileName, HttpServletRequest request){
+        return fileService.downloadFile(idGenre,fileName,request,"genre");
     }
 
 }

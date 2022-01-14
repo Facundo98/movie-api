@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
@@ -25,8 +27,11 @@ public class Genre implements Serializable {
     private Long id;
 
     @Column(length = 100,nullable = false)
+    @NotBlank(message = "The genre name cannot be blank")
+    @Size(max = 100, message = "The name must contain a maximum of 100 characters")
     private String name;
 
+    @Column(length = 100,nullable = false)
     private String image;
 
     @ManyToMany(mappedBy = "genres")

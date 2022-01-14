@@ -1,16 +1,11 @@
 package com.movieapichallenge.app.controller;
 
-import com.movieapichallenge.app.entity.Character;
 import com.movieapichallenge.app.service.CharacterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 
 @RestController
@@ -35,16 +30,12 @@ public class CharacterController {
     //Read all characters
     @GetMapping
     public ResponseEntity<?> readAll(){
-        List<Character> characters = StreamSupport
-                .stream(characterService.findAll().spliterator(),false)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(characters);
+        return characterService.readAll();
     }
 
     //Update a character
     @PutMapping("/{idCharacter}")
-    public ResponseEntity<?> update(@RequestParam("character") String character, @RequestParam(value = "file" , required = false)MultipartFile multipartFile,@PathVariable(value = "idCharacter") Long idCharacter){
+    public ResponseEntity<?> update(@RequestParam("character") String character, @RequestParam(value = "file")MultipartFile multipartFile,@PathVariable(value = "idCharacter") Long idCharacter){
         return characterService.updateCharacter(character,multipartFile,idCharacter);
 
     }

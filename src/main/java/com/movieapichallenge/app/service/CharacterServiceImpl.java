@@ -27,8 +27,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class CharacterServiceImpl implements CharacterService{
@@ -67,17 +70,17 @@ public class CharacterServiceImpl implements CharacterService{
         FileUtil fileUtil = new FileUtil();
 
         if(!optionalCharacter.isPresent()){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         try {
             FileUtils.deleteDirectory(new File(fileUtil.getCharacterImageStoragePath() + optionalCharacter.get().getId()));
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         characterRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @Override
@@ -87,11 +90,24 @@ public class CharacterServiceImpl implements CharacterService{
         String fileBasePath = "http://localhost:8080/api/files/characterImage/";
 
         if(!optionalCharacter.isPresent()){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         optionalCharacter.get().setImage( fileBasePath + optionalCharacter.get().getId() + "/" + optionalCharacter.get().getImage());
 
         return ResponseEntity.status(HttpStatus.OK).body(optionalCharacter.get());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> readAll() {
+        List<Character> characters = StreamSupport
+                .stream(this.findAll().spliterator(),false)
+                .collect(Collectors.toList());
+
+        if(characters.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+         return ResponseEntity.status(HttpStatus.OK).body(characters);
     }
 
     @Override
@@ -107,41 +123,38 @@ public class CharacterServiceImpl implements CharacterService{
         try {
             character = mapper.readValue(c,Character.class);
         } catch (JsonProcessingException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         validator = factory.getValidator();
         violations = validator.validate(character);
         if(!violations.isEmpty() || multipartFile.isEmpty()){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        if(multipartFile != null) {
-            fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-            character.setImage(fileName);
-            charac = characterRepository.save(character);
-            uploadDir = fileUtil.getCharacterImageStoragePath() + charac.getId();
-            Path uploadPath = Paths.get(uploadDir);
+        fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
+        character.setImage(fileName);
+        charac = characterRepository.save(character);
+        uploadDir = fileUtil.getCharacterImageStoragePath() + charac.getId();
+        Path uploadPath = Paths.get(uploadDir);
 
-            if (!Files.exists(uploadPath)) {
-                try {
-                    Files.createDirectories(uploadPath);
-                } catch (IOException e) {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-            }
-
+        if (!Files.exists(uploadPath)) {
             try {
-                InputStream inputStream = multipartFile.getInputStream();
-                Path filePath = uploadPath.resolve(fileName);
-                Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-            } catch (Exception e) {
+                Files.createDirectories(uploadPath);
+            } catch (IOException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
             }
-            return ResponseEntity.status(HttpStatus.CREATED).body(charac);
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(characterRepository.save(character));
+
+        try {
+            InputStream inputStream = multipartFile.getInputStream();
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(charac);
+
 
     }
 
@@ -156,26 +169,26 @@ public class CharacterServiceImpl implements CharacterService{
         Set<ConstraintViolation<Character>> violations;
 
         if(!characterOptional.isPresent()){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         mapper = new ObjectMapper();
         try {
             character = mapper.readValue(jsonData,Character.class);
         } catch (JsonProcessingException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         validator = factory.getValidator();
         violations = validator.validate(character);
         if(!violations.isEmpty() || multipartFile == null){
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         try {
             Files.delete(fileUtil.getImagePath(characterOptional.get().getId(), characterOptional.get().getImage()));
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         try {

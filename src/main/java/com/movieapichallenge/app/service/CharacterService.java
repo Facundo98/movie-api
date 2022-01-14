@@ -23,6 +23,8 @@ public interface CharacterService {
 
     ResponseEntity<?> readById(Long characterId);
 
+    ResponseEntity<?> readAll();
+
     ResponseEntity<?> saveNewCharacter(String character, MultipartFile multipartFile);
 
     ResponseEntity<?> updateCharacter(String jsonData,MultipartFile multipartFile,Long characterId);

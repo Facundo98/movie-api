@@ -13,17 +13,28 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+
 
 @Service
 public class FileServiceImpl implements FileService{
     @Override
-    public ResponseEntity downloadFileByIdCharacter(Long idCharacter, String fileName, HttpServletRequest request) {
+    public ResponseEntity downloadFile(Long id, String fileName, HttpServletRequest request,String type) {
         FileUtil fileUtil = new FileUtil();
         Resource resource = null;
         String contentType;
+        Path path = null;
 
-        Path path = fileUtil.getImagePath(idCharacter,fileName);
+        switch (type){
+            case "character": path = fileUtil.getImagePath(id,fileName);
+            break;
+
+            case "genre": path = fileUtil.getGenrePath(id,fileName);
+            break;
+
+            case "movieOrSerie": path = fileUtil.getMovieOrSeriePath(id,fileName);
+            break;
+        }
+
         try{
             resource = new UrlResource(path.toUri());
         }catch(MalformedURLException e){
