@@ -28,4 +28,10 @@ public class FileController {
         return fileService.downloadFile(idGenre,fileName,request,"genre");
     }
 
+    //Download the respective movie/serie image
+    @GetMapping("/api/files/movieOrSerieImage/{idMovieOrSerie}/{fileName}")
+    public ResponseEntity downloadSerieOrMovieImage(@PathVariable(value = "idMovieOrSerie")Long idMovieOrSerie, @PathVariable(value = "fileName")String fileName,HttpServletRequest request){
+        return fileService.downloadFile(idMovieOrSerie,fileName,request,"movieOrSerie");
+    }
+
 }

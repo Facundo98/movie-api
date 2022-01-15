@@ -9,13 +9,9 @@ import java.nio.file.Paths;
 @Getter
 public class FileUtil {
 
-    private String characterImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/characterImage/";
-    private String movieOrSerieImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/movieOrSerieImage/";
-    private String genreImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/genreImage/";
-
-    private Path characterImagePath = Paths.get(characterImageStoragePath);
-    private Path movieOrSeriePath = Paths.get(movieOrSerieImageStoragePath);
-    private Path genrePath = Paths.get(genreImageStoragePath);
+    private final String characterImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/characterImage/";
+    private final String movieOrSerieImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/movieOrSerieImage/";
+    private final String genreImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/genreImage/";
 
     public Path getImagePath(Long characterId, String fileName){
         return Paths.get(characterImageStoragePath + characterId + "/" + fileName);
