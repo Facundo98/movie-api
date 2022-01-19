@@ -11,13 +11,13 @@ import java.util.Optional;
 
 public interface CharacterService {
 
-    public Iterable<Character> findAll();
+    Iterable<Character> findAll();
 
-    public Page<Character> findAll(Pageable pageable);
+    Page<Character> findAll(Pageable pageable);
 
-    public Optional<Character> findById(Long id);
+    Optional<Character> findById(Long id);
 
-    public Character save(Character character);
+    Character save(Character character);
 
     ResponseEntity<?> deleteById(Long id);
 

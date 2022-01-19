@@ -1,9 +1,10 @@
-package com.movieapichallenge.app.service;
+package com.movieapichallenge.app.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.movieapichallenge.app.entity.MovieOrSerie;
 import com.movieapichallenge.app.repository.MovieOrSerieRepository;
+import com.movieapichallenge.app.service.MovieOrSerieService;
 import com.movieapichallenge.app.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
-public class MovieOrSerieImpl implements MovieOrSerieService{
+public class MovieOrSerieImpl implements MovieOrSerieService {
 
     @Autowired
     MovieOrSerieRepository movieOrSerieRepository;

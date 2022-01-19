@@ -1,5 +1,6 @@
-package com.movieapichallenge.app.service;
+package com.movieapichallenge.app.impl;
 
+import com.movieapichallenge.app.service.FileService;
 import com.movieapichallenge.app.util.FileUtil;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -16,7 +17,7 @@ import java.nio.file.Path;
 
 
 @Service
-public class FileServiceImpl implements FileService{
+public class FileServiceImpl implements FileService {
     @Override
     public ResponseEntity downloadFile(Long id, String fileName, HttpServletRequest request,String type) {
         FileUtil fileUtil = new FileUtil();
