@@ -48,17 +48,17 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
     public Long getId() {
         return id;
     }
 
     public String getEmail() {
         return email;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     @Override

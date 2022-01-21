@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
-@RequestMapping("/api/characters")
+@RequestMapping("/characters")
 public class CharacterController {
 
     @Autowired
