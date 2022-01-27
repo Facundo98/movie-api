@@ -21,16 +21,34 @@ public class CharacterController {
         return characterService.saveNewCharacter(character,multipartFile);
     }
 
-    //Read a character
-    @GetMapping("/{id}")
-    public ResponseEntity<?> read(@PathVariable(value = "id")Long characterId){
-         return characterService.readById(characterId);
+    //Read all characters
+    @GetMapping()
+    public ResponseEntity<?> readAll(){
+         return characterService.readAll();
     }
 
-    //Read all characters
-    @GetMapping
-    public ResponseEntity<?> readAll(){
-        return characterService.readAll();
+    //Read a character by name
+    @GetMapping(params = "name")
+    public ResponseEntity<?> readByName(@RequestParam(value = "name")String name){
+        return characterService.readByName(name);
+    }
+
+    //Read a character by name and age
+    @GetMapping(params = {"name","age"})
+    public ResponseEntity<?> readByNameAndAge(@RequestParam(value = "name")String name,@RequestParam(value = "age")Integer age){
+        return characterService.readByNameAndAge(name,age);
+    }
+
+    //Read a character by name and weight
+    @GetMapping(params = {"name","weight"})
+    public ResponseEntity<?> readByNameAndWeight(@RequestParam(value = "name")String name,@RequestParam(value = "weight")Float weight){
+        return characterService.readByNameAndWeight(name,weight);
+    }
+
+    //Read a character by name and movie/serie id
+    @GetMapping(params = {"name","movies"})
+    public ResponseEntity<?> readByNameAndMovieOrSerie(@RequestParam(value = "name")String name,@RequestParam(value = "movies")Long movies){
+        return characterService.readByNameAndMovieOrSerieId(name,movies);
     }
 
     //Update a character
@@ -45,4 +63,6 @@ public class CharacterController {
     public ResponseEntity<?> delete(@PathVariable Long idCharacter){
         return characterService.deleteById(idCharacter);
     }
+
+
 }

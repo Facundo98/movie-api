@@ -12,6 +12,8 @@ public class FileUtil {
     private final String characterImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/characterImage/";
     private final String movieOrSerieImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/movieOrSerieImage/";
     private final String genreImageStoragePath = System.getProperty("user.dir") + "/src/main/resources/uploads/genreImage/";
+    private final String movieOrSerieFileBasePath = "http://localhost:8080/api/files/movieOrSerieImage/";
+    private final String characterFileBasePath = "http://localhost:8080/api/files/characterImage/";
 
     public Path getImagePath(Long characterId, String fileName){
         return Paths.get(characterImageStoragePath + characterId + "/" + fileName);

@@ -1,5 +1,6 @@
 package com.movieapichallenge.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +18,6 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class Genre implements Serializable {
 
     private static final long serialVersionUID = 8799656478674716638L;
@@ -34,6 +34,10 @@ public class Genre implements Serializable {
     @Column(length = 100,nullable = false)
     private String image;
 
-    @ManyToMany(mappedBy = "genres")
-    private List<MovieOrSerie> movieOrSerieList;
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.MERGE},fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "movieOrSerie_genre",
+            joinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")),
+            inverseJoinColumns = @JoinColumn(name = "genre_id",foreignKey=@ForeignKey(name  = "fk_genreId")))
+    private Set<MovieOrSerie> movieOrSeriesEnrolled = new HashSet<>();
 }

@@ -19,27 +19,45 @@ public class MovieOrSerieController {
         return movieOrSerieService.create(movieOrSerie,multipartFile);
     }
 
-    //Read a genre by id
-    @GetMapping("/{id}")
-    public ResponseEntity<?> read (@PathVariable(value = "id")Long movieOrSerieId){
-        return movieOrSerieService.readById(movieOrSerieId);
+    //Add character to the movie/serie
+    @PostMapping("/{movieOrSerieId}/characters/{characterId}")
+    public ResponseEntity<?> enrollCharacterToMovieOrSerie(@PathVariable Long movieOrSerieId, @PathVariable Long characterId){
+        return movieOrSerieService.enrollCharacter(movieOrSerieId,characterId);
     }
 
-    //Read all genres
-    @GetMapping
+    //Read a genre by id
+    @GetMapping()
     public ResponseEntity<?> readAll(){
         return movieOrSerieService.readAll();
     }
 
+    //Read a movie/serie by the tittle
+    @GetMapping(params = {"tittle"})
+    public ResponseEntity<?> readByTittle(@RequestParam(value = "tittle")String tittle,@RequestParam(value = "order",required = false)String order){
+        return movieOrSerieService.readByTittle(tittle,order);
+    }
+
+    //Read a movie/serie by the tittle and genre id
+    @GetMapping(params = {"tittle","genre"})
+    public ResponseEntity<?> readByTittleAndGenreId(@RequestParam(value = "tittle")String tittle,@RequestParam(value = "genre")Long genreId,@RequestParam(value = "order",required = false)String order){
+        return movieOrSerieService.readByTittleAndGenre(tittle,genreId,order);
+    }
+
     //Update a movie/serie
     @PutMapping("/{idMovieOrSerie}")
-    public ResponseEntity<?> update (@RequestParam(value = "movieOrSerie")String movieOrSerie, @RequestParam(value = "image")MultipartFile multipartFile, @PathVariable(value = "idMovieOrSerie")Long idMovieOrSerie){
-        return movieOrSerieService.update(movieOrSerie,multipartFile,idMovieOrSerie);
+    public ResponseEntity<?> update (@RequestParam(value = "movieOrSerie")String movieOrSerie, @RequestParam(value = "image")MultipartFile multipartFile, @PathVariable(value = "idMovieOrSerie")Long MovieOrSerieId){
+        return movieOrSerieService.update(movieOrSerie,multipartFile,MovieOrSerieId);
     }
 
     //Delete a movie/serie
     @DeleteMapping("/{idMovieOrSerie}")
-    public ResponseEntity<?> delete(@PathVariable Long idMovieOrSerie){
-        return movieOrSerieService.deleteById(idMovieOrSerie);
+    public ResponseEntity<?> delete(@PathVariable Long MovieOrSerieId){
+        return movieOrSerieService.deleteById(MovieOrSerieId);
+    }
+
+    //Delete an enroled character
+    @DeleteMapping("/{movieOrSerieId}/characters/{characterId}")
+    public ResponseEntity<?> deleteEnrolledCharacter(@PathVariable Long movieOrSerieId, @PathVariable Long characterId){
+        return movieOrSerieService.deleteCharacter(movieOrSerieId,characterId);
     }
 }

@@ -2,10 +2,12 @@ package com.movieapichallenge.app.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.movieapichallenge.app.entity.Character;
 import com.movieapichallenge.app.entity.Genre;
+import com.movieapichallenge.app.entity.MovieOrSerie;
+import com.movieapichallenge.app.dto.response.MessageResponse;
 import com.movieapichallenge.app.repository.GenreRepository;
 import com.movieapichallenge.app.service.GenreService;
+import com.movieapichallenge.app.service.MovieOrSerieService;
 import com.movieapichallenge.app.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,9 @@ public class GenreServiceImpl implements GenreService {
 
     @Autowired
     GenreRepository genreRepository;
+
+    @Autowired
+    MovieOrSerieService movieOrSerieService;
 
     @Override
     @Transactional(readOnly = true)
@@ -125,7 +130,7 @@ public class GenreServiceImpl implements GenreService {
         try {
             genre = mapper.readValue(g,Genre.class);
         } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
 
         validator = factory.getValidator();
@@ -171,20 +176,20 @@ public class GenreServiceImpl implements GenreService {
         Set<ConstraintViolation<Genre>> violations;
 
         if(!genreOptional.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: the genre id does not exists!"));
         }
 
         mapper = new ObjectMapper();
         try {
             genre = mapper.readValue(jsonData,Genre.class);
         } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: genres values are invalid or incorrect"));
         }
 
         validator = factory.getValidator();
         violations = validator.validate(genre);
         if(!violations.isEmpty() || multipartFile.isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: genre values are invalid or incorrect/image is missing"));
         }
 
         try {
@@ -203,7 +208,53 @@ public class GenreServiceImpl implements GenreService {
 
         genreOptional.get().setImage(StringUtils.cleanPath(multipartFile.getOriginalFilename()));
         genreOptional.get().setName(genre.getName());
-        genreOptional.get().setMovieOrSerieList(genre.getMovieOrSerieList());
+
+        return ResponseEntity.status(HttpStatus.OK).body(genreRepository.save(genreOptional.get()));
+    }
+
+    @Override
+    public ResponseEntity enrolledMovieOrSerie(Long genreId, Long movieOrSerieId) {
+        Optional<Genre> genreOptional = genreRepository.findById(genreId);
+        Optional<MovieOrSerie> optionalMovieOrSerie = movieOrSerieService.findById(movieOrSerieId);
+        Set movieOrSerieHashSet;
+
+        if(!genreOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: genre id does not exists!"));
+        }
+
+        if(!optionalMovieOrSerie.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: movie/serie id does not exists!"));
+        }
+
+        movieOrSerieHashSet = genreOptional.get().getMovieOrSeriesEnrolled();
+        movieOrSerieHashSet.add(optionalMovieOrSerie.get());
+
+        genreOptional.get().setMovieOrSeriesEnrolled(movieOrSerieHashSet);
+
+        return ResponseEntity.status(HttpStatus.OK).body(genreRepository.save(genreOptional.get()));
+    }
+
+    @Override
+    public ResponseEntity<?> deleteMovieOrSerie(Long genreId, Long movieOrSerieId) {
+        Optional<Genre> genreOptional = genreRepository.findById(genreId);
+        Optional<MovieOrSerie> optionalMovieOrSerie = movieOrSerieService.findById(movieOrSerieId);
+        Set genreHashSet;
+
+        if(!genreOptional.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: genre id does not exists!"));
+        }
+
+        if(!optionalMovieOrSerie.isPresent()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: movie/serie id does not exists!"));
+        }
+
+        if(!genreOptional.get().getMovieOrSeriesEnrolled().contains(optionalMovieOrSerie.get())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Error: the movie/serie is not enrolled with the genre"));
+        }
+
+        genreHashSet = genreOptional.get().getMovieOrSeriesEnrolled();
+        genreHashSet.remove(optionalMovieOrSerie.get());
+        genreOptional.get().setMovieOrSeriesEnrolled(genreHashSet);
 
         return ResponseEntity.status(HttpStatus.OK).body(genreRepository.save(genreOptional.get()));
     }

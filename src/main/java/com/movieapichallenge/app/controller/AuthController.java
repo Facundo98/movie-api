@@ -1,8 +1,8 @@
 package com.movieapichallenge.app.controller;
 
 
-import com.movieapichallenge.app.payloads.request.LoginRequest;
-import com.movieapichallenge.app.payloads.request.SingUpRequest;
+import com.movieapichallenge.app.dto.request.LoginRequest;
+import com.movieapichallenge.app.dto.request.SingUpRequest;
 import com.movieapichallenge.app.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

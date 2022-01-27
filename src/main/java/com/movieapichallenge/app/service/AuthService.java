@@ -1,7 +1,7 @@
 package com.movieapichallenge.app.service;
 
-import com.movieapichallenge.app.payloads.request.LoginRequest;
-import com.movieapichallenge.app.payloads.request.SingUpRequest;
+import com.movieapichallenge.app.dto.request.LoginRequest;
+import com.movieapichallenge.app.dto.request.SingUpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 

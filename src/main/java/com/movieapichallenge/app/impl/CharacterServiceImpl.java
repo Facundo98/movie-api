@@ -2,14 +2,17 @@ package com.movieapichallenge.app.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.movieapichallenge.app.dto.CharacterDTO;
+import com.movieapichallenge.app.dto.CharacterInfo;
 import com.movieapichallenge.app.entity.Character;
+import com.movieapichallenge.app.entity.MovieOrSerie;
+import com.movieapichallenge.app.dto.response.MessageResponse;
 import com.movieapichallenge.app.repository.CharacterRepository;
 import com.movieapichallenge.app.service.CharacterService;
+import com.movieapichallenge.app.service.MovieOrSerieService;
 import com.movieapichallenge.app.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,16 +44,13 @@ public class CharacterServiceImpl implements CharacterService {
     @Autowired
     CharacterRepository characterRepository;
 
+    @Autowired
+    MovieOrSerieService movieOrSerieService;
+
     @Override
     @Transactional(readOnly = true)
     public Iterable<Character> findAll() {
         return characterRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<Character> findAll(Pageable pageable) {
-        return characterRepository.findAll(pageable);
     }
 
     @Override
@@ -60,22 +61,16 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional
-    public Character save(Character character) {
-        return characterRepository.save(character);
-    }
-
-    @Override
-    @Transactional
     public ResponseEntity<?> deleteById(Long id) {
         Optional<Character> optionalCharacter = characterRepository.findById(id);
         FileUtil fileUtil = new FileUtil();
 
-        if(!optionalCharacter.isPresent()){
+        if(optionalCharacter.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         try {
-            FileUtils.deleteDirectory(new File(fileUtil.getCharacterImageStoragePath() + optionalCharacter.get().getId()));
+            FileUtils.deleteDirectory(new File(fileUtil.getCharacterImageStoragePath() + optionalCharacter.get().getCharacterId()));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -86,29 +81,28 @@ public class CharacterServiceImpl implements CharacterService {
 
     @Override
     @Transactional(readOnly = true)
-    public ResponseEntity<?> readById(Long characterId) {
-        Optional<Character> optionalCharacter = characterRepository.findById(characterId);
-        String fileBasePath = "http://localhost:8080/api/files/characterImage/";
-
-        if(!optionalCharacter.isPresent()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        optionalCharacter.get().setImage( fileBasePath + optionalCharacter.get().getId() + "/" + optionalCharacter.get().getImage());
-
-        return ResponseEntity.status(HttpStatus.OK).body(optionalCharacter.get());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public ResponseEntity<?> readAll() {
-        List<Character> characters = StreamSupport
+        FileUtil fileUtil = new FileUtil();
+
+        List<Character> characterList = StreamSupport
                 .stream(this.findAll().spliterator(),false)
                 .collect(Collectors.toList());
+        Set<CharacterDTO> characterDTOSet = null;
+        CharacterDTO characterDTO;
 
-        if(characters.isEmpty()){
+        if(characterList.isEmpty()){
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-         return ResponseEntity.status(HttpStatus.OK).body(characters);
+
+        characterDTOSet = new HashSet<>();
+        for(Character character : characterList){
+            characterDTO = new CharacterDTO();
+            characterDTO.setName(character.getName());
+            characterDTO.setImage(fileUtil.getCharacterFileBasePath() + character.getCharacterId() + "/" + character.getImage());
+            characterDTOSet.add(characterDTO);
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(characterDTOSet);
     }
 
     @Override
@@ -136,7 +130,7 @@ public class CharacterServiceImpl implements CharacterService {
         fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
         character.setImage(fileName);
         charac = characterRepository.save(character);
-        uploadDir = fileUtil.getCharacterImageStoragePath() + charac.getId();
+        uploadDir = fileUtil.getCharacterImageStoragePath() + charac.getCharacterId();
         Path uploadPath = Paths.get(uploadDir);
 
         if (!Files.exists(uploadPath)) {
@@ -154,7 +148,7 @@ public class CharacterServiceImpl implements CharacterService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(charac);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Character saved successfully!"));
 
 
     }
@@ -169,7 +163,7 @@ public class CharacterServiceImpl implements CharacterService {
         Validator validator;
         Set<ConstraintViolation<Character>> violations;
 
-        if(!characterOptional.isPresent()){
+        if(characterOptional.isEmpty()){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
@@ -187,14 +181,14 @@ public class CharacterServiceImpl implements CharacterService {
         }
 
         try {
-            Files.delete(fileUtil.getImagePath(characterOptional.get().getId(), characterOptional.get().getImage()));
+            Files.delete(fileUtil.getImagePath(characterOptional.get().getCharacterId(), characterOptional.get().getImage()));
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         try {
             InputStream inputStream = multipartFile.getInputStream();
-            Path filePath = fileUtil.getImagePath(characterOptional.get().getId(), StringUtils.cleanPath(multipartFile.getOriginalFilename()));
+            Path filePath = fileUtil.getImagePath(characterOptional.get().getCharacterId(), StringUtils.cleanPath(multipartFile.getOriginalFilename()));
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -205,8 +199,72 @@ public class CharacterServiceImpl implements CharacterService {
         characterOptional.get().setAge(character.getAge());
         characterOptional.get().setWeight(character.getWeight());
         characterOptional.get().setHistory(character.getHistory());
-        characterOptional.get().setMovieOrSerieList(character.getMovieOrSerieList());
+        characterRepository.save(characterOptional.get());
 
-        return ResponseEntity.status(HttpStatus.OK).body(characterRepository.save(characterOptional.get()));
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("Character update successfully"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> readByName(String name) {
+        Optional<Character> optionalCharacter = characterRepository.findByName(name);
+
+        if(optionalCharacter.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: there is no character with the name provided"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(setCharacterInfo(optionalCharacter.get().getMovieOrSeriesEnrolled(),optionalCharacter.get()));
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> readByNameAndAge(String name, Integer age) {
+        Optional<Character> optionalCharacter = characterRepository.findByNameAndAge(name,age);
+
+        if(optionalCharacter.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: there is no character with the name and age provided"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(setCharacterInfo(optionalCharacter.get().getMovieOrSeriesEnrolled(),optionalCharacter.get()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> readByNameAndWeight(String name, Float weight) {
+        Optional<Character> optionalCharacter = characterRepository.findByNameAndWeight(name,weight);
+
+        if(optionalCharacter.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: there is no character with the name and weight provided"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(setCharacterInfo(optionalCharacter.get().getMovieOrSeriesEnrolled(),optionalCharacter.get()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> readByNameAndMovieOrSerieId(String name, Long movieOrSerieId) {
+        Optional<Character> optionalCharacter = characterRepository.findByMovieOrSeriesEnrolled_Id(movieOrSerieId,name);
+
+        if(optionalCharacter.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Error: there is no character with the name and movie/serie id provided"));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(setCharacterInfo(optionalCharacter.get().getMovieOrSeriesEnrolled(),optionalCharacter.get()));
+    }
+
+    public CharacterInfo setCharacterInfo(Set<MovieOrSerie> movieOrSeriesEnrolled,Character character){
+        FileUtil fileUtil = new FileUtil();
+        CharacterInfo characterInfo;
+
+        characterInfo = new CharacterInfo();
+        characterInfo.setName(character.getName());
+        characterInfo.setImage(fileUtil.getCharacterFileBasePath() + character.getCharacterId() + "/" + character.getImage());
+        characterInfo.setAge(character.getAge());
+        characterInfo.setHistory(character.getHistory());
+        characterInfo.setWeight(character.getWeight());
+        Set<Long> movieOrSeriesIds = new HashSet<>();
+        for(MovieOrSerie movieOrSerie : movieOrSeriesEnrolled){
+            movieOrSeriesIds.add(movieOrSerie.getMovieOrSerieId());
+        }
+        characterInfo.setMovieOrSeriesIds(movieOrSeriesIds);
+
+        return characterInfo;
     }
 }

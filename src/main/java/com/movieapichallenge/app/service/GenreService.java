@@ -28,4 +28,8 @@ public interface GenreService {
     ResponseEntity<?> saveNewGenre(String genre, MultipartFile multipartFile);
 
     ResponseEntity<?> updateGenre(String jsonData,MultipartFile multipartFile,Long genreId);
+
+    ResponseEntity enrolledMovieOrSerie(Long genreId, Long movieOrSerieId);
+
+    ResponseEntity<?> deleteMovieOrSerie(Long genreId, Long movieOrSerieId);
 }

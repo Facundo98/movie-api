@@ -1,4 +1,4 @@
-package com.movieapichallenge.app.payloads.response;
+package com.movieapichallenge.app.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

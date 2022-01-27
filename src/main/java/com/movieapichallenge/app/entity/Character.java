@@ -1,28 +1,32 @@
 package com.movieapichallenge.app.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table (name = "characters")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@EqualsAndHashCode(exclude = "movieOrSeriesEnrolled")
 public class Character implements Serializable{
 
     private static final long serialVersionUID = 8799656478674716638L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long characterId;
 
     @Column(length = 100,nullable = false)
     private String image;
@@ -50,11 +54,8 @@ public class Character implements Serializable{
     @Column(nullable = false)
     private String history;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "movieOrSerie_characters",
-            joinColumns = @JoinColumn(name = "character_id",foreignKey=@ForeignKey(name = "fk_characterId")),
-            inverseJoinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")))
-    private List<MovieOrSerie> movieOrSerieList;
-
+    @ManyToMany(mappedBy = "charactersEnrolled",
+            cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH},
+            fetch = FetchType.LAZY)
+    private Set<MovieOrSerie> movieOrSeriesEnrolled = new HashSet<>();
 }

@@ -37,10 +37,22 @@ public class GenreController {
         return genreService.updateGenre(genre,multipartFile,idGenre);
     }
 
+    //Add movie or serie to the genre
+    @PostMapping("/{genreId}/movieorserie/{movieOrSerieId}")
+    public ResponseEntity<?> enrollMovieOrSerieToGenre(@PathVariable Long genreId, @PathVariable Long movieOrSerieId){
+        return genreService.enrolledMovieOrSerie(genreId,movieOrSerieId);
+    }
+
     //Delete a genre
     @DeleteMapping("/{idGenre}")
     public ResponseEntity<?> delete(@PathVariable Long idGenre){
         return genreService.deleteById(idGenre);
+    }
+
+    //Delete an enroled movie/serie
+    @DeleteMapping("/{genreId}/movieorserie/{movieOrSerieId}")
+    public ResponseEntity<?> deleteEnrolledMovieOrSerie(@PathVariable Long genreId, @PathVariable Long movieOrSerieId){
+        return genreService.deleteMovieOrSerie(genreId,movieOrSerieId);
     }
 
 

@@ -1,29 +1,32 @@
 package com.movieapichallenge.app.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "movieOrSerie")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class MovieOrSerie implements Serializable {
 
     private static final long serialVersionUID = 8799614478674716638L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long  movieOrSerieId;
 
     @Column(nullable = false)
     @NotBlank(message = "The tittle cannot be blank")
@@ -42,15 +45,12 @@ public class MovieOrSerie implements Serializable {
     @Column(nullable = false)
     private Integer score;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinTable(
-            name = "movieOrSerie_genre",
-            joinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")),
-            inverseJoinColumns = @JoinColumn(name = "genre_id",foreignKey=@ForeignKey(name  = "fk_genreId")))
-    private List<Genre> genres;
-
-    @ManyToMany(mappedBy = "movieOrSerieList")
-    private List<Character> characters;
+            name = "movieOrSerie_characters",
+            joinColumns = @JoinColumn(name = "character_id",foreignKey=@ForeignKey(name = "fk_characterId")),
+            inverseJoinColumns = @JoinColumn(name = "movieOrSerie_id",foreignKey=@ForeignKey(name = "fk_movieOrSerieId")))
+    private Set<Character> charactersEnrolled = new HashSet<>();
 
 
 }
