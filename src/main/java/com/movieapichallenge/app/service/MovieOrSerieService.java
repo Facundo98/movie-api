@@ -15,8 +15,6 @@ public interface MovieOrSerieService {
 
     ResponseEntity<?> deleteById(Long id);
 
-    Optional<MovieOrSerie> findById(Long movieOrSerieId);
-
     ResponseEntity<?> readAll();
 
     ResponseEntity<?> create(String movieOrSerie, MultipartFile multipartFile);

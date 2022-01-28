@@ -91,7 +91,7 @@ public class MovieOrSerieImpl implements MovieOrSerieService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(movieOrSerie1);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Movie/serie saved successfully"));
     }
 
     @Override
@@ -100,11 +100,6 @@ public class MovieOrSerieImpl implements MovieOrSerieService {
         return movieOrSerieRepository.findAll();
     }
 
-
-    @Override
-    public Optional<MovieOrSerie> findById(Long movieOrSerieId) {
-        return movieOrSerieRepository.findById(movieOrSerieId);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -243,8 +238,9 @@ public class MovieOrSerieImpl implements MovieOrSerieService {
         movieOrSerieOptional.get().setTittle(movieOrSerie.getTittle());
         movieOrSerieOptional.get().setCreationDate(movieOrSerie.getCreationDate());
         movieOrSerieOptional.get().setScore(movieOrSerie.getScore());
+        movieOrSerieRepository.save(movieOrSerieOptional.get());
 
-        return ResponseEntity.status(HttpStatus.OK).body(movieOrSerieRepository.save(movieOrSerieOptional.get()));
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("Movie/serie update successfully"));
     }
 
     @Override
